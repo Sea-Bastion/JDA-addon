@@ -157,7 +157,7 @@ public class CJDABuilder extends JDABuilder {
 
 		CJDA cjda = this.buildAsync();
 
-		while(cjda.getStatus() != JDA.Status.CONNECTED) {
+		while(!cjda.InputReady()) {
 			Thread.sleep(50L);
 		}
 		return cjda;

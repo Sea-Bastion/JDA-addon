@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient;
 public class CJDAImpl extends JDAImpl implements CJDA {
 
 	private Input input;
+	private boolean InputReady = false;
 
 	public CJDAImpl(AccountType accountType, OkHttpClient.Builder httpClientBuilder, WebSocketFactory wsFactory, boolean autoReconnect, boolean audioEnabled, boolean useShutdownHook, boolean bulkDeleteSplittingEnabled, int corePoolSize, int maxReconnectDelay) {
 		super(accountType, httpClientBuilder, wsFactory, autoReconnect, audioEnabled, useShutdownHook, bulkDeleteSplittingEnabled, corePoolSize, maxReconnectDelay);
@@ -27,13 +28,22 @@ public class CJDAImpl extends JDAImpl implements CJDA {
 			}
 		}
 
-		new Thread(input = new Input(this));
+		new Thread(input = new Input(this)).start();
 		this.addEventListener(input);
+		InputReady = true;
 	}
 
 
 	@Override
-	public Input getInput() {
+	public Input getInput() throws NullPointerException {
+
+		if(input == null) throw new NullPointerException("Bot not finished loggin in");
+
 		return input;
+	}
+
+	@Override
+	public boolean InputReady() {
+		return InputReady;
 	}
 }
