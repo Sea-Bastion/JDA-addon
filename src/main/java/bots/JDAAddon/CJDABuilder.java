@@ -25,7 +25,6 @@ import java.util.Properties;
 
 public class CJDABuilder extends JDABuilder {
 
-	private Input input;
 	private static String DiscordFile;
 	private static String OS = System.getProperty("os.name").toLowerCase();
 
@@ -137,7 +136,7 @@ public class CJDABuilder extends JDABuilder {
 	public CJDA buildAsync() throws LoginException, IllegalArgumentException, RateLimitedException {
 		OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
 		WebSocketFactory wsFactory = this.wsFactory == null ? new WebSocketFactory() : this.wsFactory;
-		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay, input);
+		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay);
 		if (this.eventManager != null) {
 			cjda.setEventManager(this.eventManager);
 		}
@@ -156,15 +155,12 @@ public class CJDABuilder extends JDABuilder {
 	@Override
 	public CJDA buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException {
 
-		CJDA jda = this.buildAsync();
+		CJDA cjda = this.buildAsync();
 
-		while(jda.getStatus() != JDA.Status.CONNECTED) {
+		while(cjda.getStatus() != JDA.Status.CONNECTED) {
 			Thread.sleep(50L);
 		}
-
-		new Thread(input = new Input(jda)).start();
-		jda.addEventListener(input);
-		return jda;
+		return cjda;
 	}
 
 	//---------------------------------get token---------------------------------
