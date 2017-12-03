@@ -134,7 +134,7 @@ public class CJDABuilder extends JDABuilder {
 	}
 
 	@Override
-	public JDA buildAsync() throws LoginException, IllegalArgumentException, RateLimitedException {
+	public CJDA buildAsync() throws LoginException, IllegalArgumentException, RateLimitedException {
 		OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
 		WebSocketFactory wsFactory = this.wsFactory == null ? new WebSocketFactory() : this.wsFactory;
 		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay, input);
@@ -154,9 +154,9 @@ public class CJDABuilder extends JDABuilder {
 	}
 
 	@Override
-	public JDA buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException {
+	public CJDA buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException {
 
-		JDA jda = this.buildAsync();
+		CJDA jda = this.buildAsync();
 
 		while(jda.getStatus() != JDA.Status.CONNECTED) {
 			Thread.sleep(50L);
