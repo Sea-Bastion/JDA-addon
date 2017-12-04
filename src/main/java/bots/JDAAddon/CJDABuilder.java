@@ -39,8 +39,7 @@ public class CJDABuilder extends JDABuilder {
 			DiscordFile = home + "/.config/discord";
 
 		}else if(OS.contains("mac")){
-			System.err.println("no support for mac os WIP");
-			System.exit(1);
+			DiscordFile = home + "/Library/Application Support/discord";
 		}
 	}
 
@@ -163,6 +162,10 @@ public class CJDABuilder extends JDABuilder {
 		return cjda;
 	}
 
+	static public String getToken(){
+		return getToken(getDiscordFile() + "/Token.properties");
+	}
+
 	//---------------------------------get token---------------------------------
 	static public String getToken(String StoragePath) {
 
@@ -176,11 +179,11 @@ public class CJDABuilder extends JDABuilder {
 				if (!PropFile.canWrite()) PropFile.setWritable(true);
 				boolean fail = false;
 
-				if(!(OS.contains("windows") || OS.contains("linux"))){
-					if (PropFile.getParentFile().mkdirs() || PropFile.createNewFile())
+				if(OS.contains("windows") || OS.contains("linux")){
+					if (!(PropFile.getParentFile().mkdirs() || PropFile.createNewFile()))
 						fail = true;
 
-				}else if(OS.contains("mac")){
+				}else if(!OS.contains("mac")){
 					if (PropFile.mkdirs()) fail = true;
 
 				}

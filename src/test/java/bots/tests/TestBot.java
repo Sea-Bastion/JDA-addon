@@ -1,5 +1,7 @@
 package bots.tests;
 
+import static bots.JDAAddon.CJDABuilder.*;
+
 import bots.JDAAddon.CJDA;
 import bots.JDAAddon.CJDABuilder;
 import bots.JDAAddon.Input;
@@ -11,10 +13,10 @@ import javax.security.auth.login.LoginException;
 public class TestBot {
 
 	private CJDA bot;
-	private String token = "mfa.W6B7F0VQFXomciEritB6hSYxmOwP1jF0fHe9kHB4RQPayytJkxcaR48pUymS_b8o9kQ3u4VeiDU6GUHXKBcv";
-	private Input input;
 
 	private TestBot(){
+
+		String token = getToken();
 
 		while(bot == null){
 
@@ -22,18 +24,20 @@ public class TestBot {
 				bot = new CJDABuilder(AccountType.CLIENT).setToken(token).buildBlocking();
 
 			} catch (LoginException e) {
-				System.err.println("error logging in to discord");
+				System.err.println("error logging in to discord: " + e.getMessage());
 			} catch (InterruptedException e) {
-				System.err.println("could not connect to discord");
+				System.err.println("could not connect to discord: " + e.getMessage());
 			} catch (RateLimitedException e) {
-				System.err.println("slow connect to discord");
+				System.err.println("slow connect to discord: " + e.getMessage());
 			}
 
 		}
 
-		input = bot.getInput();
+		Input input = bot.getInput();
 
 		input.send("4");
+		input.send("1");
+		input.send("ur mum gey");
 
 
 	}

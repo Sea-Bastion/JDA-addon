@@ -15,7 +15,8 @@ public class Input extends ListenerAdapter implements Runnable {
 
 	protected JDA bot;
 	protected MessageChannel SelectedChannel;
-	private String msg = "";
+	private StringBuilder msg = new StringBuilder();
+	private boolean intaking = false;
 
 	//---------------------------------init---------------------------------
 	Input(JDA bot){
@@ -148,20 +149,40 @@ public class Input extends ListenerAdapter implements Runnable {
 	private String input() {
 		synchronized (msg) {
 			try {
+				System.out.println("intaking and waiting");
+				intaking = true;
 				msg.wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 		}
-		return msg;
+		return msg.toString();
 	}
 
 
 	public void send(String message){
+		System.out.println("send wait started");
+
+		try {
+			while (!intaking) {
+				Thread.sleep(50L);
+			}
+
+		}catch (InterruptedException e){
+			System.err.println("wait for intake interupted: " + e.getMessage());
+			System.exit(1);
+		}
+
+
+		System.out.println("send wait ended");
+
+		intaking = false;
+
 		synchronized (msg) {
-			msg = message;
-			msg.notify();
+			msg.delete(0,msg.length());
+			msg.append(message);
+			msg.notifyAll();
 		}
 	}
 }
