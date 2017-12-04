@@ -134,12 +134,16 @@ public class Input extends ListenerAdapter implements Runnable {
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
 
+		//TODO add custom message output
+
 		Message msg = event.getMessage();
 
 		if(SelectedChannel != null && msg.getChannel().equals(SelectedChannel)){
 			System.out.println(msg.getAuthor().getName() + ": " + msg.getContent());
 		}
 	}
+	
+	//TODO fix input and send messages
 
 	private String input() {
 		synchronized (msg) {
