@@ -6,4 +6,6 @@ public interface CJDA extends JDA {
 
 	public Input getInput();
 
+	public boolean InputReady();
+
 }

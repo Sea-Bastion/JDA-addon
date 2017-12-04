@@ -25,7 +25,6 @@ import java.util.Properties;
 
 public class CJDABuilder extends JDABuilder {
 
-	private Input input;
 	private static String DiscordFile;
 	private static String OS = System.getProperty("os.name").toLowerCase();
 
@@ -40,8 +39,7 @@ public class CJDABuilder extends JDABuilder {
 			DiscordFile = home + "/.config/discord";
 
 		}else if(OS.contains("mac")){
-			System.err.println("no support for mac os WIP");
-			System.exit(1);
+			DiscordFile = home + "/Library/Application Support/discord";
 		}
 	}
 
@@ -137,7 +135,7 @@ public class CJDABuilder extends JDABuilder {
 	public CJDA buildAsync() throws LoginException, IllegalArgumentException, RateLimitedException {
 		OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
 		WebSocketFactory wsFactory = this.wsFactory == null ? new WebSocketFactory() : this.wsFactory;
-		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay, input);
+		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay);
 		if (this.eventManager != null) {
 			cjda.setEventManager(this.eventManager);
 		}
@@ -156,15 +154,16 @@ public class CJDABuilder extends JDABuilder {
 	@Override
 	public CJDA buildBlocking() throws LoginException, IllegalArgumentException, InterruptedException, RateLimitedException {
 
-		CJDA jda = this.buildAsync();
+		CJDA cjda = this.buildAsync();
 
-		while(jda.getStatus() != JDA.Status.CONNECTED) {
+		while(!cjda.InputReady()) {
 			Thread.sleep(50L);
 		}
+		return cjda;
+	}
 
-		new Thread(input = new Input(jda)).start();
-		jda.addEventListener(input);
-		return jda;
+	static public String getToken(){
+		return getToken(getDiscordFile() + "/Token.properties");
 	}
 
 	//---------------------------------get token---------------------------------
@@ -180,11 +179,11 @@ public class CJDABuilder extends JDABuilder {
 				if (!PropFile.canWrite()) PropFile.setWritable(true);
 				boolean fail = false;
 
-				if(!(OS.contains("windows") || OS.contains("linux"))){
-					if (PropFile.getParentFile().mkdirs() || PropFile.createNewFile())
+				if(OS.contains("windows") || OS.contains("linux")){
+					if (!(PropFile.getParentFile().mkdirs() || PropFile.createNewFile()))
 						fail = true;
 
-				}else if(OS.contains("mac")){
+				}else if(!OS.contains("mac")){
 					if (PropFile.mkdirs()) fail = true;
 
 				}
