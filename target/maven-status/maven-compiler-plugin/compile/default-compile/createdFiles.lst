@@ -3,4 +3,5 @@ bots/JDAAddon/CJDABuilder.class
 bots/JDAAddon/Input.class
 bots/JDAAddon/CJDAImpl.class
 bots/JDAAddon/DataBase.class
+bots/JDAAddon/Mic.class
 bots/JDAAddon/CJDA.class
