@@ -7,8 +7,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import java.io.InputStream;
-import java.nio.channels.ReadableByteChannel;
 import java.util.*;
 
 public class Input extends ListenerAdapter implements Runnable {
@@ -17,10 +15,12 @@ public class Input extends ListenerAdapter implements Runnable {
 	protected MessageChannel SelectedChannel;
 	private StringBuilder msg = new StringBuilder();
 	private boolean intaking = false;
+	private List<MessageHandler> MsgHandlers = new ArrayList<>();
 
 	//---------------------------------init---------------------------------
-	Input(JDA bot){
+	Input(JDA bot, List<MessageHandler> msgHandlers){
 		this.bot = bot;
+		addMessageHandler(msgHandlers);
 	}
 
 	//---------------------------------run---------------------------------
@@ -64,7 +64,7 @@ public class Input extends ListenerAdapter implements Runnable {
 
 		while(loop){
 			for (int i = 0; i < list.size(); i++) {
-				System.out.println(String.valueOf(i+1) + ": " + list.get(i));
+				out(String.valueOf(i+1) + ": " + list.get(i));
 			}
 
 			try{
@@ -72,10 +72,10 @@ public class Input extends ListenerAdapter implements Runnable {
 				loop = false;
 
 			}catch (InputMismatchException e) {
-				System.out.println("please inputis an int");
+				out("please inputis an int");
 
 			}catch (IndexOutOfBoundsException e) {
-				System.out.println("please inputis valid channel\n");
+				out("please inputis valid channel\n");
 			}
 		}
 
@@ -116,7 +116,7 @@ public class Input extends ListenerAdapter implements Runnable {
 		Collections.reverse(history);
 
 		for (Message i: history){
-			System.out.println(i.getAuthor().getName() + ": " + i.getContent());
+			out(i.getAuthor().getName() + ": " + i.getContent());
 		}
 
 	}
@@ -124,7 +124,7 @@ public class Input extends ListenerAdapter implements Runnable {
 	//---------------------------------clear screen---------------------------------
 	private void cls() {
 		for(int i = 0; i < 100; i++){
-			System.out.println();
+			out("\n");
 		}
 	}
 
@@ -140,16 +140,27 @@ public class Input extends ListenerAdapter implements Runnable {
 		Message msg = event.getMessage();
 
 		if(SelectedChannel != null && msg.getChannel().equals(SelectedChannel)){
-			System.out.println(msg.getAuthor().getName() + ": " + msg.getContent());
+			out(msg.getContent());
 		}
 	}
-	
-	//TODO fix input and send messages
+
+	public void out(String msg){
+		MsgHandlers.forEach(e -> {
+			e.handle(msg);
+		});
+	}
+
+	public void addMessageHandler(MessageHandler... msghandler){
+		addMessageHandler(Arrays.asList(msghandler));
+	}
+
+	public void addMessageHandler(Collection<MessageHandler> MsgHandler){
+		MsgHandlers.addAll(MsgHandler);
+	}
 
 	private String input() {
 		synchronized (msg) {
 			try {
-				System.out.println("intaking and waiting");
 				intaking = true;
 				msg.wait();
 			} catch (InterruptedException e) {
@@ -162,7 +173,6 @@ public class Input extends ListenerAdapter implements Runnable {
 
 
 	public void send(String message){
-		System.out.println("send wait started");
 
 		try {
 			while (!intaking) {
@@ -174,8 +184,6 @@ public class Input extends ListenerAdapter implements Runnable {
 			System.exit(1);
 		}
 
-
-		System.out.println("send wait ended");
 
 		intaking = false;
 
