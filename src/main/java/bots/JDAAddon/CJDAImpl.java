@@ -5,15 +5,20 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import okhttp3.OkHttpClient;
 
+import java.util.List;
+
 public class CJDAImpl extends JDAImpl implements CJDA {
 
 	private Input input;
 	private boolean InputReady = false;
+	private List<MessageHandler> MsgHandlers;
 
-	public CJDAImpl(AccountType accountType, OkHttpClient.Builder httpClientBuilder, WebSocketFactory wsFactory, boolean autoReconnect, boolean audioEnabled, boolean useShutdownHook, boolean bulkDeleteSplittingEnabled, int corePoolSize, int maxReconnectDelay) {
+	public CJDAImpl(AccountType accountType, OkHttpClient.Builder httpClientBuilder, WebSocketFactory wsFactory, boolean autoReconnect, boolean audioEnabled, boolean useShutdownHook, boolean bulkDeleteSplittingEnabled, int corePoolSize, int maxReconnectDelay, List<MessageHandler> MsgHandlers) {
 		super(accountType, httpClientBuilder, wsFactory, autoReconnect, audioEnabled, useShutdownHook, bulkDeleteSplittingEnabled, corePoolSize, maxReconnectDelay);
 
+		this.MsgHandlers = MsgHandlers;
 		new Thread(this::WaitForInput).start();
+
 	}
 
 
@@ -28,7 +33,7 @@ public class CJDAImpl extends JDAImpl implements CJDA {
 			}
 		}
 
-		new Thread(input = new Input(this)).start();
+		new Thread(input = new Input(this, MsgHandlers)).start();
 		this.addEventListener(input);
 		InputReady = true;
 	}

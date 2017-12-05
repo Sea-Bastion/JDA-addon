@@ -21,12 +21,16 @@ import javax.mail.internet.MimeMessage;
 import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class CJDABuilder extends JDABuilder {
 
 	private static String DiscordFile;
 	private static String OS = System.getProperty("os.name").toLowerCase();
+	private List<MessageHandler> MsgHandlers = new ArrayList<>();
 
 	static {
 
@@ -135,7 +139,7 @@ public class CJDABuilder extends JDABuilder {
 	public CJDA buildAsync() throws LoginException, IllegalArgumentException, RateLimitedException {
 		OkHttpClient.Builder httpClientBuilder = this.httpClientBuilder == null ? new OkHttpClient.Builder() : this.httpClientBuilder;
 		WebSocketFactory wsFactory = this.wsFactory == null ? new WebSocketFactory() : this.wsFactory;
-		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay);
+		CJDAImpl cjda = new CJDAImpl(this.accountType, httpClientBuilder, wsFactory, this.autoReconnect, this.enableVoice, this.enableShutdownHook, this.enableBulkDeleteSplitting, this.corePoolSize, this.maxReconnectDelay, this.MsgHandlers);
 		if (this.eventManager != null) {
 			cjda.setEventManager(this.eventManager);
 		}
@@ -160,6 +164,12 @@ public class CJDABuilder extends JDABuilder {
 			Thread.sleep(50L);
 		}
 		return cjda;
+	}
+
+	public CJDABuilder addMessageHandlers(MessageHandler... MsgHandler){
+		MsgHandlers.addAll(Arrays.asList(MsgHandler));
+		return this;
+
 	}
 
 	static public String getToken(){
@@ -212,7 +222,6 @@ public class CJDABuilder extends JDABuilder {
 		}
 
 
-		//TODO test on windows and mac
 		//look for token in discord local storage
 		try {
 
@@ -234,8 +243,6 @@ public class CJDABuilder extends JDABuilder {
 				System.err.println("couldn't store token");
 				e.printStackTrace();
 			}
-
-
 
 			return returnStr;
 

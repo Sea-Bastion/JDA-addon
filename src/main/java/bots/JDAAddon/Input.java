@@ -7,8 +7,6 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import java.io.InputStream;
-import java.nio.channels.ReadableByteChannel;
 import java.util.*;
 
 public class Input extends ListenerAdapter implements Runnable {
@@ -17,11 +15,12 @@ public class Input extends ListenerAdapter implements Runnable {
 	protected MessageChannel SelectedChannel;
 	private StringBuilder msg = new StringBuilder();
 	private boolean intaking = false;
-	private List<MessageHandler> MsgHandlers;
+	private List<MessageHandler> MsgHandlers = new ArrayList<>();
 
 	//---------------------------------init---------------------------------
-	Input(JDA bot){
+	Input(JDA bot, List<MessageHandler> msgHandlers){
 		this.bot = bot;
+		addMessageHandler(msgHandlers);
 	}
 
 	//---------------------------------run---------------------------------
@@ -146,13 +145,17 @@ public class Input extends ListenerAdapter implements Runnable {
 	}
 
 	public void out(String msg){
-		for (MessageHandler handler: MsgHandlers) {
-			handler.handle(msg + "\n");
-		}
+		MsgHandlers.forEach(e -> {
+			e.handle(msg);
+		});
 	}
 
-	public void addMessageHandler(MessageHandler msghandler){
-		MsgHandlers.add(msghandler);
+	public void addMessageHandler(MessageHandler... msghandler){
+		addMessageHandler(Arrays.asList(msghandler));
+	}
+
+	public void addMessageHandler(Collection<MessageHandler> MsgHandler){
+		MsgHandlers.addAll(MsgHandler);
 	}
 
 	private String input() {
