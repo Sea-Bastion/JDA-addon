@@ -25,10 +25,10 @@ public class Input extends ListenerAdapter implements Runnable {
 
 	//---------------------------------run---------------------------------
 	public void run(){
-		SelectedChannel = SelectChannel();
 
 		while (true) {
 			String msg = input();
+
 
 			if (msg.equals("/disconnect") || msg.equals("/exit")){
 				bot.shutdown();
@@ -37,7 +37,7 @@ public class Input extends ListenerAdapter implements Runnable {
 			}else if (msg.equals("/channels")) {
 				SelectedChannel = null;
 				cls();
-				SelectedChannel = SelectChannel();
+				SelectChannel();
 
 			}else if (msg.length() > 5 && msg.substring(0,5).equals("/read")) {
 
@@ -72,10 +72,10 @@ public class Input extends ListenerAdapter implements Runnable {
 				loop = false;
 
 			}catch (InputMismatchException e) {
-				out("please inputis an int");
+				out("please input an int");
 
 			}catch (IndexOutOfBoundsException e) {
-				out("please inputis valid channel\n");
+				out("please input valid channel\n");
 			}
 		}
 
@@ -84,7 +84,7 @@ public class Input extends ListenerAdapter implements Runnable {
 	}
 
 	//---------------------------------select channel---------------------------------
-	private MessageChannel SelectChannel(){
+	private void SelectChannel(){
 		List<NamedList<MessageChannel>> Servers = new ArrayList<>();
 		//TODO show unread messages
 
@@ -104,13 +104,11 @@ public class Input extends ListenerAdapter implements Runnable {
 		MessageChannel selected = Select(Select(Servers));
 		cls();
 
-		read(25, selected);
-
-		return selected;
+		SelectedChannel = selected;
 	}
 
 	//---------------------------------read msgs---------------------------------
-	private void read(int msgNum, MessageChannel SelectedChannel){
+	public void read(int msgNum, MessageChannel SelectedChannel){
 		List<Message> history = SelectedChannel.getHistory().retrievePast(msgNum).complete();
 		history = history.subList(0, history.size());
 		Collections.reverse(history);
@@ -122,20 +120,18 @@ public class Input extends ListenerAdapter implements Runnable {
 	}
 
 	//---------------------------------clear screen---------------------------------
-	private void cls() {
+	public void cls() {
 		for(int i = 0; i < 100; i++){
 			out("\n");
 		}
 	}
 
-	MessageChannel getSelectedChannel() {
+	public MessageChannel getSelectedChannel() {
 		return SelectedChannel;
 	}
 
 	@Override
 	public void onMessageReceived(MessageReceivedEvent event) {
-
-		//TODO add custom message output
 
 		Message msg = event.getMessage();
 

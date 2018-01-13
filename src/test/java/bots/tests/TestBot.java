@@ -21,7 +21,7 @@ public class TestBot {
 		while(bot == null){
 
 			try {
-				bot = new CJDABuilder(AccountType.CLIENT).addMessageHandlers(this::MessageGet).setToken(token).buildBlocking();
+				bot = new CJDABuilder(AccountType.CLIENT).addMessageHandlers(System.out::println).setToken(token).buildBlocking();
 
 			} catch (LoginException e) {
 				System.err.println("error logging in to discord: " + e.getMessage());
@@ -35,15 +35,12 @@ public class TestBot {
 
 		Input input = bot.getInput();
 
-		input.send("5");
+		input.send("/channels");
 		input.send("1");
+		input.send("17");
 		input.send("this was sent from my discord bot");
 
 
-	}
-
-	public void MessageGet(String msg){
-		System.out.println(msg);
 	}
 
 	public static void main(String args[]){
